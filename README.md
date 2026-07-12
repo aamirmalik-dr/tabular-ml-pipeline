@@ -1,32 +1,41 @@
-# Tabular ML pipeline
+# tabml
 
-A reusable scikit-learn pipeline for messy tabular data, assembled from parts
-that are each configurable and testable:
+A small library for building scikit-learn pipelines on messy tabular data. You
+describe the pipeline once with a typed config, and `tabml` assembles the
+preprocessing, an optional LASSO selection step, and a tuned multi-model
+comparison. Import it and go:
 
-- A **ColumnTransformer** that median-imputes and standardizes numeric columns
-  and most-frequent-imputes and one-hot encodes categorical columns, with
-  unknown categories handled safely at transform time.
-- **LASSO feature selection** on the encoded matrix.
-- A **tuned multi-model comparison** across logistic regression, SVM, KNN,
-  random forest, and gradient boosting, each grid-searched and scored by
-  cross-validated ROC-AUC, then evaluated on a held-out test set.
+```python
+from tabml import (
+    PipelineConfig, build_pipeline, compare_models,
+    load_sample, train_test_split_frame, results_table,
+)
 
-## What it does
+data = load_sample()                       # committed offline sample, no network
+train, test = train_test_split_frame(data, seed=0)
 
-- Infers numeric vs categorical columns and builds the matching preprocessor.
-- Fits everything inside cross-validation folds so imputation and scaling never
-  leak test information into training.
-- Produces a ranked model table plus ROC and confusion-matrix figures.
-- Works on the public UCI Adult dataset or on a built-in synthetic dataframe
-  with injected missing values.
+cfg = PipelineConfig(model="gradient_boosting")   # or PipelineConfig.from_yaml(...)
+pipe = build_pipeline(cfg)                  # prep -> LASSO select -> classifier
+pipe.fit(train.X, train.y)
+pipe.predict(test.X)
 
-## What it does not do
+results = compare_models(train, test, config=cfg)  # ranked by test ROC-AUC
+print(results_table(results))
+```
 
-- It does not do automated feature engineering beyond encoding and LASSO
-  selection.
-- The hyperparameter grids are intentionally small so the demo runs on a CPU in
-  a minute or two; widen them in `pipeline.py` for a serious search.
-- Only binary classification is wired up end to end.
+The preprocessor median-imputes and standardizes numeric columns, most-frequent-
+imputes and one-hot encodes categoricals, and detects column types at fit time,
+so the same config transfers to any mixed-type dataframe. Selection sits inside
+the pipeline and is refit per cross-validation fold, so it never leaks test
+information.
+
+## Hero artifact
+
+`compare_models` keeps each fitted estimator and its test scores, which lets
+`tabml.plots.roc_panel` overlay every model's ROC curve next to the best model's
+confusion matrix in one figure.
+
+![ROC panel](results/roc_panel.png)
 
 ## Install
 
@@ -35,47 +44,82 @@ python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\act
 pip install -e ".[dev]"
 ```
 
-## Run
+## 30-second quickstart (offline)
 
-Fully offline (synthetic mixed-type data with missing values):
+The repository ships a small sample, so this runs with no network and writes the
+figures, `metrics.json`, and the fitted pipeline under `results/`:
 
 ```bash
 python scripts/compare_models.py
 ```
 
-On the public UCI Adult census-income dataset:
+Two runnable examples show the two entry points:
+
+```bash
+python examples/build_pipeline.py            # build and compare from a config
+python examples/predict_with_saved_model.py  # load results/best_model.joblib and predict
+```
+
+For the full dataset from OpenML:
 
 ```bash
 python scripts/download_data.py --out data/adult.csv --n-sample 5000
 python scripts/compare_models.py --dataset adult --n-sample 5000
 ```
 
-## Results
+## Results (committed sample)
 
-Measured on the public UCI Adult dataset from OpenML, a 5000-row subsample
-(positive rate 0.234), 75/25 stratified train/test split, 3-fold grid search,
-seed 0. Produced by `scripts/compare_models.py` in this repository.
+Measured on the committed 900-row sample (a class-stratified carve of UCI Adult,
+positive rate 0.239), 75/25 stratified split, 3-fold grid search, seed 0.
+Produced by `scripts/compare_models.py` in this repository. This is a controlled
+validation on a small subset, not a published benchmark.
 
-| Model             | CV AUC | Test AUC | Test accuracy |
-|-------------------|-------:|---------:|--------------:|
-| gradient_boosting | 0.9117 |   0.9129 |        0.8608 |
-| random_forest     | 0.9064 |   0.9075 |        0.8560 |
-| logreg            | 0.8992 |   0.8992 |        0.8488 |
-| svm               | 0.8929 |   0.8846 |        0.8496 |
-| knn               | 0.8790 |   0.8722 |        0.8384 |
+| Model | CV AUC | Test AUC | Test accuracy |
+| --- | ---: | ---: | ---: |
+| gradient_boosting | 0.8944 | 0.9026 | 0.8533 |
+| random_forest | 0.9016 | 0.8970 | 0.8356 |
+| logreg | 0.8970 | 0.8927 | 0.8356 |
+| svm | 0.8821 | 0.8748 | 0.8311 |
+| knn | 0.8763 | 0.8739 | 0.8311 |
 
-Gradient boosting is the strongest model on this dataset and split, with the
-tree ensembles ahead of the linear and instance-based baselines. Absolute
-numbers shift a little with the subsample size and seed; the ranking is stable.
+Gradient boosting wins on this split, with the tree ensembles ahead of the
+linear and instance-based baselines. Absolute numbers shift with the subsample
+and seed; the ranking is the stable finding. See [model_card.md](model_card.md)
+for the selected model's details and top features.
+
+## Configuration
+
+Every run is driven by a `PipelineConfig`, which loads from
+[`configs/pipeline.yaml`](configs/pipeline.yaml). It controls imputers, scaler,
+LASSO `alpha`, the model list, the per-model grids, and cross-validation. Edit
+the YAML and rerun; nothing else changes.
+
+## Reference
+
+- [docs/usage.md](docs/usage.md), task-by-task walkthrough.
+- [docs/api.md](docs/api.md), the full public API.
+- [model_card.md](model_card.md), the committed model and its limitations.
+
+## Scope
+
+- Binary classification is wired end to end; multiclass and regression are not.
+- Feature engineering is limited to encoding and LASSO selection, no automated
+  synthesis.
+- The grids are deliberately small so the demo runs on a CPU in a minute or two.
+  Widen them in `configs/pipeline.yaml` for a serious search.
 
 ## Layout
 
 ```
-src/tabml/       data, pipeline, selection, compare
+src/tabml/       data, config, pipeline, selection, importance, compare, plots
 scripts/         download_data.py, compare_models.py
-notebooks/       demo.ipynb (executed)
+examples/        build_pipeline.py, predict_with_saved_model.py
+docs/            usage.md, api.md
+configs/         pipeline.yaml
+notebooks/       demo.ipynb
+results/         committed figures, metrics.json, best_model.joblib
+data/            committed sample plus data/README.md; full dataset gitignored
 tests/           pytest suite for preprocessing, selection, and comparison
-data/            gitignored; see data/README.md
 ```
 
 ## Tests

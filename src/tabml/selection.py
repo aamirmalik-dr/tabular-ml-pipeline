@@ -7,9 +7,7 @@ from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import Lasso
 
 
-def lasso_selected_features(
-    X: np.ndarray, y: np.ndarray, alpha: float = 0.01
-) -> np.ndarray:
+def lasso_selected_features(X: np.ndarray, y: np.ndarray, alpha: float = 0.01) -> np.ndarray:
     """Select features with a LASSO (L1-penalized) linear model.
 
     The L1 penalty drives many coefficients to exactly zero; features with a

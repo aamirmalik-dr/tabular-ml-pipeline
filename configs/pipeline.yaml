@@ -1,0 +1,50 @@
+# Pipeline configuration consumed by tabml.build_pipeline and compare_models.
+# Load with: PipelineConfig.from_yaml("configs/pipeline.yaml")
+
+# Imputation strategies passed to SimpleImputer.
+imputer:
+  numeric: median          # median | mean
+  categorical: most_frequent
+
+# Numeric scaler: standard | minmax | none
+scaler: standard
+
+# Categorical encoder: onehot
+encoder: onehot
+
+# LASSO feature selection inserted between preprocessing and the classifier.
+selection:
+  method: lasso            # lasso | none
+  alpha: 0.001             # larger keeps fewer features
+
+# Classifier assembled by build_pipeline when no model is passed explicitly.
+model: gradient_boosting
+
+# Classifiers compared by compare_models.
+models:
+  - logreg
+  - svm
+  - knn
+  - random_forest
+  - gradient_boosting
+
+# Cross-validation for the tuned grid search.
+cv:
+  folds: 3
+  scoring: roc_auc
+
+# Per-model hyperparameter grids, keyed on the pipeline's clf step.
+grids:
+  logreg:
+    clf__C: [0.1, 1.0, 10.0]
+  svm:
+    clf__C: [0.5, 1.0]
+    clf__kernel: [rbf]
+  knn:
+    clf__n_neighbors: [5, 11, 21]
+  random_forest:
+    clf__n_estimators: [100, 200]
+    clf__max_depth: [null, 10]
+  gradient_boosting:
+    clf__n_estimators: [100]
+    clf__learning_rate: [0.05, 0.1]

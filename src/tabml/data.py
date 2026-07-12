@@ -9,9 +9,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+# The committed, license-clean sample: a stratified subset of UCI Adult.
+_SAMPLE_PATH = Path(__file__).resolve().parents[2] / "data" / "adult_sample.csv"
+_TARGET_COLUMN = "income_gt_50k"
 
 
 @dataclass
@@ -110,6 +115,34 @@ def load_adult(n_sample: int | None = 5000, seed: int = 0) -> TabularData:
 
     numeric, categorical = infer_column_types(X)
     return TabularData(X=X, y=y, numeric=numeric, categorical=categorical)
+
+
+def load_sample(path: str | Path | None = None, target: str = _TARGET_COLUMN) -> TabularData:
+    """Load the committed offline sample (a stratified UCI Adult subset).
+
+    This reads a small CSV that ships with the repository so the quickstart runs
+    with no network. Use :func:`load_adult` for the full dataset.
+
+    Args:
+        path: CSV path. Defaults to ``data/adult_sample.csv`` in the repo.
+        target: Name of the binary target column.
+
+    Returns:
+        The sample as a :class:`TabularData`.
+
+    Raises:
+        FileNotFoundError: If the sample CSV is missing.
+    """
+    csv_path = Path(path) if path is not None else _SAMPLE_PATH
+    if not csv_path.exists():
+        raise FileNotFoundError(
+            f"sample not found at {csv_path}; run scripts/download_data.py for the full set"
+        )
+    frame = pd.read_csv(csv_path)
+    y = frame[target].astype(int).to_numpy()
+    X = frame.drop(columns=[target])
+    numeric, categorical = infer_column_types(X)
+    return TabularData(X=X.reset_index(drop=True), y=y, numeric=numeric, categorical=categorical)
 
 
 def train_test_split_frame(

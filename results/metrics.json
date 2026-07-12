@@ -1,0 +1,119 @@
+{
+  "dataset": "sample",
+  "n_rows": 900,
+  "positive_rate": 0.2388888888888889,
+  "cv_folds": 3,
+  "best_model": "gradient_boosting",
+  "models": [
+    {
+      "name": "gradient_boosting",
+      "best_params": {
+        "clf__learning_rate": 0.1,
+        "clf__n_estimators": 100
+      },
+      "cv_score": 0.894409350199226,
+      "test_accuracy": 0.8533333333333334,
+      "test_roc_auc": 0.9026424084903617
+    },
+    {
+      "name": "random_forest",
+      "best_params": {
+        "clf__max_depth": 10,
+        "clf__n_estimators": 200
+      },
+      "cv_score": 0.9016133326325888,
+      "test_accuracy": 0.8355555555555556,
+      "test_roc_auc": 0.8970110461338532
+    },
+    {
+      "name": "logreg",
+      "best_params": {
+        "clf__C": 0.1
+      },
+      "cv_score": 0.8969737992853103,
+      "test_accuracy": 0.8355555555555556,
+      "test_roc_auc": 0.8926792289365388
+    },
+    {
+      "name": "svm",
+      "best_params": {
+        "clf__C": 0.5,
+        "clf__kernel": "rbf"
+      },
+      "cv_score": 0.8821118632075867,
+      "test_accuracy": 0.8311111111111111,
+      "test_roc_auc": 0.8748104829976174
+    },
+    {
+      "name": "knn",
+      "best_params": {
+        "clf__n_neighbors": 21
+      },
+      "cv_score": 0.876253047977014,
+      "test_accuracy": 0.8311111111111111,
+      "test_roc_auc": 0.8739441195581548
+    }
+  ],
+  "top_features": [
+    {
+      "feature": "cat__marital-status_Married-civ-spouse",
+      "importance": 0.21310128566352993
+    },
+    {
+      "feature": "num__education-num",
+      "importance": 0.1895438087116686
+    },
+    {
+      "feature": "num__age",
+      "importance": 0.11776224306670688
+    },
+    {
+      "feature": "num__capital-gain",
+      "importance": 0.10746854009066516
+    },
+    {
+      "feature": "num__hours-per-week",
+      "importance": 0.07173717511030613
+    },
+    {
+      "feature": "cat__relationship_Husband",
+      "importance": 0.06747559637396404
+    },
+    {
+      "feature": "num__fnlwgt",
+      "importance": 0.0596517994020479
+    },
+    {
+      "feature": "num__capital-loss",
+      "importance": 0.0386536871081266
+    },
+    {
+      "feature": "cat__workclass_Self-emp-not-inc",
+      "importance": 0.014607970909866836
+    },
+    {
+      "feature": "cat__occupation_Exec-managerial",
+      "importance": 0.013994370763372045
+    },
+    {
+      "feature": "cat__occupation_Adm-clerical",
+      "importance": 0.01088298741625095
+    },
+    {
+      "feature": "cat__workclass_Federal-gov",
+      "importance": 0.010499782511365297
+    },
+    {
+      "feature": "cat__marital-status_Never-married",
+      "importance": 0.010475006371081745
+    },
+    {
+      "feature": "cat__occupation_Tech-support",
+      "importance": 0.009115799617938597
+    },
+    {
+      "feature": "cat__sex_Female",
+      "importance": 0.00847922256603055
+    }
+  ]
+}

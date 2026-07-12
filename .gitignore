@@ -16,10 +16,21 @@ env/
 .coverage
 htmlcov/
 
-# Data and generated artifacts (fetched or produced locally, never committed)
+# Data: ignore the full dataset, keep the small committed sample and its README.
 data/*
 !data/README.md
-results/
+!data/adult_sample.csv
+
+# Generated artifacts: ignore the results dir by default, but commit the small
+# figures, metrics, and the fitted pipeline that ship for the offline quickstart.
+results/*
+!results/roc_panel.png
+!results/confusion.png
+!results/feature_importance.png
+!results/metrics.json
+!results/best_model.joblib
+
+# Large checkpoints stay ignored.
 *.pt
 *.pth
 *.pth.tar

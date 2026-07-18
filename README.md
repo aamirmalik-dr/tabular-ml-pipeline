@@ -1,7 +1,5 @@
 # tabular-ml-pipeline
 
-*Origin: Originally developed for the Data Science Methodology course at KAIST (Spring 2022); refactored and open-sourced in July 2026.*
-
 A small library for building scikit-learn pipelines on messy tabular data. You
 describe the pipeline once with a typed config, and `tabml` assembles the
 preprocessing, an optional LASSO selection step, and a tuned multi-model
@@ -139,3 +137,7 @@ MIT, see [LICENSE](LICENSE).
 
 Aamir Malik. [GitHub](https://github.com/aamirmalik-dr) ·
 [LinkedIn](https://linkedin.com/in/dr-aamirmalik)
+
+---
+
+*Refactored and engineered into this tested, reproducible project in July 2026, from work originally done for the Data Science Methodology course at KAIST (Spring 2022).*

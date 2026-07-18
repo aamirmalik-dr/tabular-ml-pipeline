@@ -1,4 +1,4 @@
-# tabml
+# tabular-ml-pipeline
 
 *Origin: Originally developed for the Data Science Methodology course at KAIST (Spring 2022); refactored and open-sourced in July 2026.*
 

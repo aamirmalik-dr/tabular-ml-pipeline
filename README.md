@@ -1,5 +1,7 @@
 # tabml
 
+*Origin: Originally developed for the Data Science Methodology course at KAIST (Spring 2022); refactored and open-sourced in July 2026.*
+
 A small library for building scikit-learn pipelines on messy tabular data. You
 describe the pipeline once with a typed config, and `tabml` assembles the
 preprocessing, an optional LASSO selection step, and a tuned multi-model
